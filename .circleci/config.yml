@@ -15,25 +15,26 @@ examples:
           working_directory: ~/cms-api-server
           docker:
             - image: prontotools/alpine-git-curl
-              steps:
-                - checkout
-                - ecm/export_commit_msg
-                - run:
-                    name: Send Slack Webhook
-                    command:  |
-                      curl -H "Content-Type: application/json" \
-                      -X POST -d '{ "text": "Changes: '$GIT_COMMIT_MESSAGE' were deployed successfully!" }' $SLACK_WEBHOOK_URL
+          steps:
+            - checkout
+            - ecm/export_commit_msg
+            - run:
+                name: Send Slack Webhook
+                command:  |
+                  curl -H "Content-Type: application/json" \
+                  -X POST -d '{ "text": "Changes: '$GIT_COMMIT_MESSAGE' were deployed successfully!" }' $SLACK_WEBHOOK_URL
 
 orbs:
   ecm:
     commands:
-    description: "Export GIT_COMMIT_MESSAGE environment variable"
-    parameters:
-      when:
-        type: string
-        default: "always"
-    steps:
-      - run:
-          when: << parameters.when >>
-          command: |
-            echo "export GIT_COMMIT_MESSAGE=\"$(git log --format=%B -n 1 $CIRCLE_SHA1)\"" >> $BASH_ENV
+      export_commit_msg:
+        description: "Export GIT_COMMIT_MESSAGE environment variable"
+        parameters:
+          when:
+            type: string
+            default: "always"
+        steps:
+          - run:
+              when: << parameters.when >>
+              command: |
+                echo "export GIT_COMMIT_MESSAGE=\"$(git log --format=%B -n 1 $CIRCLE_SHA1)\"" >> $BASH_ENV
