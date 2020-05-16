@@ -1,0 +1,39 @@
+version: 2.1
+description: Export git commit message as an environment variable for use in any job
+display:
+  source_url: https://github.com/pay-justice/export-commit-message
+
+examples:
+  simple_greeting:
+    description: Send webhook with git commit description
+    usage:
+      version: 2.1
+      orbs:
+        ecm: pay-justice/export-commit-message@0.0.1
+      jobs:
+        init:
+          working_directory: ~/cms-api-server
+          docker:
+            - image: prontotools/alpine-git-curl
+              steps:
+                - checkout
+                - ecm/export_commit_msg
+                - run:
+                    name: Send Slack Webhook
+                    command:  |
+                      curl -H "Content-Type: application/json" \
+                      -X POST -d '{ "text": "Changes: '$GIT_COMMIT_MESSAGE' were deployed successfully!" }' $SLACK_WEBHOOK_URL
+
+orbs:
+  ecm:
+    commands:
+    description: "Export GIT_COMMIT_MESSAGE environment variable"
+    parameters:
+      when:
+        type: string
+        default: "always"
+    steps:
+      - run:
+          when: << parameters.when >>
+          command: |
+            echo "export GIT_COMMIT_MESSAGE=\"$(git log --format=%B -n 1 $CIRCLE_SHA1)\"" >> $BASH_ENV
