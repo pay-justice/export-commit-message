@@ -17,7 +17,7 @@ examples:
             - image: prontotools/alpine-git-curl
           steps:
             - checkout
-            - ecm/export_commit_msg
+            - ecm/export_commit
             - run:
                 name: Send Slack Webhook
                 command:  |
@@ -27,7 +27,7 @@ examples:
 orbs:
   ecm:
     commands:
-      export_commit_msg:
+      export_commit:
         description: "Export GIT_COMMIT_MESSAGE environment variable"
         parameters:
           when:
